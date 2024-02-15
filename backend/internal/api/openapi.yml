@@ -1,0 +1,54 @@
+openapi: "3.0.0"
+info:
+  title: "Simple Messaging API"
+  description: "A simple API for posting and retrieving messages."
+  version: "1.0.0"
+servers:
+  - url: "http://localhost:8080"
+    description: "Development server"
+paths:
+  /messages:
+    post:
+      summary: "Post a new message"
+      description: "Add a new message to the store."
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Message'
+      responses:
+        '201':
+          description: "Message created"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+        '400':
+          description: "Bad request"
+    get:
+      summary: "Get all messages"
+      description: "Retrieve all posted messages."
+      responses:
+        '200':
+          description: "List of messages"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Message'
+components:
+  schemas:
+    Message:
+      type: "object"
+      required:
+        - id
+        - content
+      properties:
+        id:
+          type: "string"
+          example: "1"
+        content:
+          type: "string"
+          example: "Hello, world!"
