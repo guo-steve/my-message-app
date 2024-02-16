@@ -2,20 +2,25 @@ package api
 
 import (
 	"encoding/json"
+	"log/slog"
 	"net/http"
 
 	"my-message-app/internal/domain"
-	"my-message-app/internal/repo"
+	"my-message-app/internal/service"
 )
 
 // Handler is a struct that holds the repository
 type Handler struct {
-	repo repo.Repository
+	services *service.Services
+	logger   *slog.Logger
 }
 
 // NewHandler returns a new Handler
-func NewHandler(repo repo.Repository) *Handler {
-	return &Handler{repo: repo}
+func NewHandler(services *service.Services, logger *slog.Logger) *Handler {
+	return &Handler{
+		services: services,
+		logger:   logger,
+	}
 }
 
 type PostMessageRequest struct {
@@ -27,14 +32,16 @@ func (h *Handler) PostMessage(resWtr http.ResponseWriter, req *http.Request) {
 	var postMessageRequest PostMessageRequest
 
 	if err := json.NewDecoder(req.Body).Decode(&postMessageRequest); err != nil {
+		h.logger.Error(err.Error())
 		http.Error(resWtr, err.Error(), http.StatusBadRequest)
 		return
 	}
 
 	message := domain.Message{Content: postMessageRequest.Content}
 
-	result, err := h.repo.PostMessage(req.Context(), message)
+	result, err := h.services.MessageService.CreateMessage(req.Context(), message)
 	if err != nil {
+		h.logger.Error(err.Error())
 		http.Error(resWtr, err.Error(), http.StatusInternalServerError)
 		return
 	}
@@ -45,7 +52,7 @@ func (h *Handler) PostMessage(resWtr http.ResponseWriter, req *http.Request) {
 
 // GetMessages handles the GET /messages endpoint
 func (h *Handler) GetMessages(resWtr http.ResponseWriter, req *http.Request) {
-	messages, err := h.repo.GetMessages(req.Context())
+	messages, err := h.services.MessageService.GetMessages(req.Context())
 	if err != nil {
 		http.Error(resWtr, err.Error(), http.StatusInternalServerError)
 		return

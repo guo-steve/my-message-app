@@ -7,6 +7,6 @@ import (
 )
 
 type Repository interface {
-	PostMessage(ctx context.Context, message domain.Message) (*domain.Message, error)
+	CreateMessage(ctx context.Context, message domain.Message) (*domain.Message, error)
 	GetMessages(ctx context.Context) ([]domain.Message, error)
 }

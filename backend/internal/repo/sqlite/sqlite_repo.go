@@ -6,18 +6,21 @@ import (
 	"fmt"
 
 	"my-message-app/internal/domain"
+	"my-message-app/internal/repo"
 )
 
 type SqliteRepo struct {
 	db *sql.DB
 }
 
+var _ repo.Repository = &SqliteRepo{}
+
 func NewSqliteRepo(db *sql.DB) *SqliteRepo {
 	return &SqliteRepo{db: db}
 }
 
-// PostMessage adds a message to the database
-func (r *SqliteRepo) PostMessage(ctx context.Context, message domain.Message) (*domain.Message, error) {
+// CreateMessage adds a message to the database
+func (r *SqliteRepo) CreateMessage(ctx context.Context, message domain.Message) (*domain.Message, error) {
 	row := r.db.QueryRowContext(
 		ctx,
 		"INSERT INTO messages (content) VALUES (?) RETURNING *",

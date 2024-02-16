@@ -7,6 +7,7 @@ import (
 
 	"my-message-app/internal/api"
 	"my-message-app/internal/repo/sqlite"
+	"my-message-app/internal/service"
 
 	_ "github.com/glebarez/go-sqlite"
 	"github.com/go-chi/chi/v5"
@@ -50,8 +51,8 @@ func main() {
 	}
 
 	repo := sqlite.NewSqliteRepo(db)
-
-	handler := api.NewHandler(repo)
+	services := service.NewServices(service.NewMessageService(repo))
+	handler := api.NewHandler(services, logger.With("component", "api"))
 
 	r.Route("/v1/messages", func(r chi.Router) {
 		r.Post("/", handler.PostMessage) // POST /messages
