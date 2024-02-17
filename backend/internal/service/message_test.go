@@ -12,7 +12,7 @@ import (
 
 func TestNewMessageService(t *testing.T) {
 	type args struct {
-		repo repo.Repository
+		repo repo.MessageRepo
 	}
 	tests := []struct {
 		name string
@@ -40,7 +40,7 @@ func TestNewMessageService(t *testing.T) {
 
 func Test_messageService_CreateMessage(t *testing.T) {
 	type fields struct {
-		repo repo.Repository
+		repo repo.MessageRepo
 	}
 	type args struct {
 		ctx     context.Context
@@ -106,7 +106,7 @@ func Test_messageService_CreateMessage(t *testing.T) {
 
 func Test_messageService_GetMessages(t *testing.T) {
 	type fields struct {
-		repo repo.Repository
+		repo repo.MessageRepo
 	}
 	type args struct {
 		ctx context.Context
@@ -170,7 +170,7 @@ type mockMessageRepo struct {
 	hasError bool
 }
 
-var _ repo.Repository = &mockMessageRepo{}
+var _ repo.MessageRepo = &mockMessageRepo{}
 
 func (m *mockMessageRepo) CreateMessage(ctx context.Context, message domain.Message) (*domain.Message, error) {
 	if m.hasError {

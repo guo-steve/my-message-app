@@ -2,26 +2,10 @@ package api
 
 import (
 	"encoding/json"
-	"log/slog"
 	"net/http"
 
 	"my-message-app/internal/domain"
-	"my-message-app/internal/service"
 )
-
-// Handler is a struct that holds the repository
-type Handler struct {
-	services *service.Services
-	logger   *slog.Logger
-}
-
-// NewHandler returns a new Handler
-func NewHandler(services *service.Services, logger *slog.Logger) *Handler {
-	return &Handler{
-		services: services,
-		logger:   logger,
-	}
-}
 
 type PostMessageRequest struct {
 	Content string `json:"content"`
@@ -37,7 +21,16 @@ func (h *Handler) PostMessage(resWtr http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	message := domain.Message{Content: postMessageRequest.Content}
+	user, ok := req.Context().Value("user").(domain.User)
+	if !ok {
+		http.Error(resWtr, "user not found", http.StatusUnauthorized)
+		return
+	}
+
+	message := domain.Message{
+		Content:   postMessageRequest.Content,
+		CreatedBy: user.ID,
+	}
 
 	result, err := h.services.MessageService.CreateMessage(req.Context(), message)
 	if err != nil {

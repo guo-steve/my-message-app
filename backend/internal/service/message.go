@@ -10,10 +10,10 @@ import (
 var _ MessageService = (*messageService)(nil)
 
 type messageService struct {
-	repo repo.Repository
+	repo repo.MessageRepo
 }
 
-func NewMessageService(repo repo.Repository) *messageService {
+func NewMessageService(repo repo.MessageRepo) *messageService {
 	return &messageService{
 		repo: repo,
 	}

@@ -10,9 +10,6 @@ import (
 	"my-message-app/internal/service"
 
 	_ "github.com/glebarez/go-sqlite"
-	"github.com/go-chi/chi/v5"
-	"github.com/go-chi/chi/v5/middleware"
-	"github.com/go-chi/cors"
 	"github.com/go-chi/httplog/v2"
 )
 
@@ -24,13 +21,6 @@ func main() {
 		SourceFieldName: "caller",
 	})
 
-	r := chi.NewRouter()
-	r.Use(httplog.RequestLogger(logger))
-	r.Use(middleware.Recoverer)
-	r.Use(cors.Handler(cors.Options{
-		AllowedOrigins: []string{"http://localhost:3000"},
-	}))
-
 	// Connect to the database
 	db, err := sql.Open("sqlite", ":memory:")
 	if err != nil {
@@ -40,24 +30,23 @@ func main() {
 
 	// Create the messages table
 	// This is usually done in a migration outside of the application
-	_, err = db.Exec(`CREATE TABLE messages (
-		id INTEGER PRIMARY KEY AUTOINCREMENT,
-		content TEXT,
-		created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-	)`)
+	sqls, err := os.ReadFile("./database/schema.sql")
+	if err != nil {
+		logger.Error("failed to read schema.sql", err)
+		os.Exit(1)
+	}
+	_, err = db.Exec(string(sqls))
 	if err != nil {
 		logger.Error("failed to create table", err)
 		os.Exit(1)
 	}
 
-	repo := sqlite.NewSqliteRepo(db)
-	services := service.NewServices(service.NewMessageService(repo))
-	handler := api.NewHandler(services, logger.With("component", "api"))
+	// tokenAuth := jwtauth.New("HS256", []byte(os.Getenv("MMA_JWT_KEY")), nil)
 
-	r.Route("/v1/messages", func(r chi.Router) {
-		r.Post("/", handler.PostMessage) // POST /messages
-		r.Get("/", handler.GetMessages)  // GET /messages
-	})
+	repo := sqlite.NewSqliteRepo(db)
+	services := service.NewServices(service.NewMessageService(repo), service.NewAuthService(repo, repo))
+	handler := api.NewHandler(services, logger)
+	r := api.InitRounter(handler)
 
 	logger.Info("server started on :8080")
 

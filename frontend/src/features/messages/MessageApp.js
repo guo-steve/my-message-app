@@ -76,7 +76,6 @@ const MessageApp = () => {
     <div>
       {contextHolder}
       <Form
-        // {...formItemLayout}
         layout={formLayout}
         form={form}
         initialValues={{
