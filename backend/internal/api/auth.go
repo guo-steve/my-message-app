@@ -36,7 +36,7 @@ func (h *Handler) Register(rw http.ResponseWriter, req *http.Request) {
 	}
 
 	// Write the token string to the response
-	rw.WriteHeader(http.StatusOK)
+	rw.WriteHeader(http.StatusCreated)
 	json.NewEncoder(rw).Encode(UserResponse{
 		ID:        savedUser.ID,
 		Email:     savedUser.Email,
@@ -68,6 +68,8 @@ func (h *Handler) Login(rw http.ResponseWriter, req *http.Request) {
 }
 
 func (h *Handler) Logout(rw http.ResponseWriter, req *http.Request) {
+	// we are able to get user from context
+
 	// Get token from request
 	tokenString := FindToken(req)
 	if tokenString == "" {

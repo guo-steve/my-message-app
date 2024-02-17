@@ -3,6 +3,7 @@ package sqlite
 import (
 	"context"
 	"database/sql"
+	"os"
 	"reflect"
 	"testing"
 
@@ -13,11 +14,8 @@ import (
 
 func getTestDB() *sql.DB {
 	db, _ := sql.Open("sqlite", ":memory:")
-	_, _ = db.Exec(`CREATE TABLE messages (
-		id INTEGER PRIMARY KEY AUTOINCREMENT,
-		content TEXT,
-		created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-	)`)
+	sqls, _ := os.ReadFile("../../../database/schema.sql")
+	db.Exec(string(sqls))
 	return db
 }
 
@@ -83,22 +81,6 @@ func TestSqliteRepo_PostMessage(t *testing.T) {
 				Content: "Hello, World!",
 			},
 		},
-		// {
-		// 	name: "PostMessage error",
-		// 	fields: fields{
-		// 		db: testDb,
-		// 	},
-		// 	args: args{
-		// 		ctx: context.Background(),
-		// 		message: domain.Message{
-		// 			Content: "Hello, World!",
-		// 		},
-		// 	},
-		// 	want: &domain.Message{
-		// 		Content: "Hello, World!",
-		// 	},
-		// 	wantErr: true,
-		// },
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

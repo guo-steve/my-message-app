@@ -17,22 +17,46 @@ import (
 	"github.com/go-chi/httplog/v2"
 )
 
-func newSerivces() *service.Services {
+func newServices(hasError bool) *service.Services {
 	return service.NewServices(
-		&mockMessageService{},
-		&mockAuthService{},
+		&mockMessageService{hasError: hasError},
+		&mockAuthService{hasError: hasError},
 	)
 }
 
-func newHandler() *Handler {
+func newHandler(s *service.Services) *Handler {
 	return NewHandler(
-		newSerivces(),
-		&httplog.Logger{},
+		s,
+		httplog.NewLogger("test", httplog.Options{}),
 	)
+}
+
+func testReq(method, url string) *http.Request {
+	var req *http.Request
+
+	switch {
+	case method == http.MethodGet && url == "/v1/messages":
+		req = httptest.NewRequest(http.MethodGet, url, nil)
+	case method == http.MethodPost && url == "/v1/messages":
+		req = httptest.NewRequest(
+			http.MethodPost,
+			url,
+			strings.NewReader(`{"content":"Hello"}`),
+		)
+	}
+
+	ctx := context.WithValue(req.Context(), "user", domain.User{
+		ID: "1",
+	})
+
+	return req.WithContext(ctx)
 }
 
 func TestNewHandler(t *testing.T) {
-	services := newSerivces()
+	services := service.NewServices(
+		&mockMessageService{},
+		nil,
+	)
 
 	type args struct {
 		services *service.Services
@@ -63,14 +87,6 @@ func TestNewHandler(t *testing.T) {
 }
 
 func TestHandler_PostMessage(t *testing.T) {
-	req := func() *http.Request {
-		return httptest.NewRequest(
-			http.MethodPost,
-			"/v1/messages",
-			strings.NewReader(`{"content":"Hello"}`),
-		)
-	}
-
 	type fields struct {
 		services *service.Services
 	}
@@ -92,7 +108,7 @@ func TestHandler_PostMessage(t *testing.T) {
 			},
 			args: args{
 				resWtr: httptest.NewRecorder(),
-				req:    req(),
+				req:    testReq(http.MethodPost, "/v1/messages"),
 			},
 			want: &domain.Message{
 				ID:      "1",
@@ -106,14 +122,15 @@ func TestHandler_PostMessage(t *testing.T) {
 			},
 			args: args{
 				resWtr: httptest.NewRecorder(),
-				req:    req(),
+				req:    testReq(http.MethodPost, "/v1/messages"),
 			},
 			wantErr: true,
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			h := newHandler()
+			// new Handler
+			h := newHandler(tt.fields.services)
 			h.PostMessage(tt.args.resWtr, tt.args.req)
 
 			res := tt.args.resWtr.(*httptest.ResponseRecorder).Result()
@@ -161,7 +178,7 @@ func TestHandler_GetMessages(t *testing.T) {
 			},
 			args: args{
 				resWtr: httptest.NewRecorder(),
-				req:    httptest.NewRequest(http.MethodGet, "/v1/messages", nil),
+				req:    testReq(http.MethodGet, "/v1/messages"),
 			},
 			want: []domain.Message{
 				{
@@ -181,7 +198,7 @@ func TestHandler_GetMessages(t *testing.T) {
 			},
 			args: args{
 				resWtr: httptest.NewRecorder(),
-				req:    httptest.NewRequest(http.MethodGet, "/v1/messages", nil),
+				req:    testReq(http.MethodGet, "/v1/messages"),
 			},
 			wantErr: true,
 		},
@@ -189,7 +206,7 @@ func TestHandler_GetMessages(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			h := newHandler()
+			h := newHandler(tt.fields.services)
 			h.GetMessages(tt.args.resWtr, tt.args.req)
 
 			res := tt.args.resWtr.(*httptest.ResponseRecorder).Result()
