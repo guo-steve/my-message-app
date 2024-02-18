@@ -231,7 +231,7 @@ func (m *mockMessageService) CreateMessage(ctx context.Context, message domain.M
 	}, nil
 }
 
-func (m *mockMessageService) GetMessages(ctx context.Context) ([]domain.Message, error) {
+func (m *mockMessageService) GetMessages(ctx context.Context, createdBy string) ([]domain.Message, error) {
 	if m.hasError {
 		return nil, errors.New("error")
 	}

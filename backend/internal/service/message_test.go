@@ -109,7 +109,8 @@ func Test_messageService_GetMessages(t *testing.T) {
 		repo repo.MessageRepo
 	}
 	type args struct {
-		ctx context.Context
+		ctx       context.Context
+		createdBy string
 	}
 	tests := []struct {
 		name    string
@@ -154,7 +155,7 @@ func Test_messageService_GetMessages(t *testing.T) {
 			s := &messageService{
 				repo: tt.fields.repo,
 			}
-			got, err := s.GetMessages(tt.args.ctx)
+			got, err := s.GetMessages(tt.args.ctx, tt.args.createdBy)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("messageService.GetMessages() error = %v, wantErr %v", err, tt.wantErr)
 				return
@@ -182,7 +183,7 @@ func (m *mockMessageRepo) CreateMessage(ctx context.Context, message domain.Mess
 	}, nil
 }
 
-func (m *mockMessageRepo) GetMessages(ctx context.Context) ([]domain.Message, error) {
+func (m *mockMessageRepo) GetMessages(ctx context.Context, createdBy string) ([]domain.Message, error) {
 	if m.hasError {
 		return nil, errors.New("error")
 	}

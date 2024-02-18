@@ -39,8 +39,13 @@ func (r *SqliteRepo) CreateMessage(ctx context.Context, message domain.Message) 
 }
 
 // GetMessages returns all messages from the database
-func (r *SqliteRepo) GetMessages(ctx context.Context) ([]domain.Message, error) {
-	rows, err := r.db.QueryContext(ctx, "SELECT id, content, created_by, created_at FROM messages")
+func (r *SqliteRepo) GetMessages(ctx context.Context, createdBy string) ([]domain.Message, error) {
+	rows, err := r.db.QueryContext(
+		ctx,
+		`SELECT id, content, created_by, created_at
+		FROM messages WHEERE created_by = ?`,
+		createdBy,
+	)
 	if err != nil {
 		return nil, err
 	}

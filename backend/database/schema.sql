@@ -17,7 +17,7 @@ CREATE TABLE users (
 CREATE TABLE messages (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     content TEXT,
-    created_by INTEGER,
+    created_by INTEGER REFERENCES users(id),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 ---------------------

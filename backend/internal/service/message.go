@@ -23,6 +23,6 @@ func (s *messageService) CreateMessage(ctx context.Context, message domain.Messa
 	return s.repo.CreateMessage(ctx, message)
 }
 
-func (s *messageService) GetMessages(ctx context.Context) ([]domain.Message, error) {
-	return s.repo.GetMessages(ctx)
+func (s *messageService) GetMessages(ctx context.Context, createdBy string) ([]domain.Message, error) {
+	return s.repo.GetMessages(ctx, createdBy)
 }

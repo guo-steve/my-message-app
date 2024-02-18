@@ -8,7 +8,7 @@ import (
 
 type MessageRepo interface {
 	CreateMessage(ctx context.Context, message domain.Message) (*domain.Message, error)
-	GetMessages(ctx context.Context) ([]domain.Message, error)
+	GetMessages(ctx context.Context, createdBy string) ([]domain.Message, error)
 }
 
 type UserRepo interface {

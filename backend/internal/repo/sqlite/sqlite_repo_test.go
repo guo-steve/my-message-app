@@ -106,7 +106,8 @@ func TestSqliteRepo_GetMessages(t *testing.T) {
 		db *sql.DB
 	}
 	type args struct {
-		ctx context.Context
+		ctx       context.Context
+		createdBy string
 	}
 	tests := []struct {
 		name    string
@@ -121,7 +122,8 @@ func TestSqliteRepo_GetMessages(t *testing.T) {
 				db: testDb,
 			},
 			args: args{
-				ctx: context.Background(),
+				ctx:       context.Background(),
+				createdBy: "1",
 			},
 			want: []domain.Message{},
 		},
@@ -131,7 +133,7 @@ func TestSqliteRepo_GetMessages(t *testing.T) {
 			r := &SqliteRepo{
 				db: tt.fields.db,
 			}
-			_, err := r.GetMessages(tt.args.ctx)
+			_, err := r.GetMessages(tt.args.ctx, tt.args.createdBy)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("SqliteRepo.GetMessages() error = %v, wantErr %v", err, tt.wantErr)
 				return

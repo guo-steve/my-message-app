@@ -75,7 +75,7 @@ func (h *Handler) GetMessages(resWtr http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	messages, err := h.services.MessageService.GetMessages(req.Context())
+	messages, err := h.services.MessageService.GetMessages(req.Context(), user.ID)
 	if err != nil {
 		http.Error(resWtr, err.Error(), http.StatusInternalServerError)
 		return
