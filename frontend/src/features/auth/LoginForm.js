@@ -12,7 +12,7 @@ const LoginForm = () => {
   const onFinish = async (values) => {
     try {
       const { token } = await login({
-        email: values.username,
+        email: values.email,
         password: values.password,
       });
 
@@ -54,18 +54,22 @@ const LoginForm = () => {
             }}
           >
             <Form.Item
-              name="username"
+              name="email"
               rules={[
                 {
+                  type: "email",
+                  message: "The input is not valid E-mail!",
+                },
+                {
                   required: true,
-                  message: "Please input your Username!",
+                  message: "Please input your Email!",
                 },
               ]}
               hasFeedback
             >
               <Input
                 prefix={<UserOutlined className="site-form-item-icon" />}
-                placeholder="Username"
+                placeholder="Email"
               />
             </Form.Item>
             <Form.Item

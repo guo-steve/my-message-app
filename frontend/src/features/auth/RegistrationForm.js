@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Button, Col, Form, Input, message, Row } from "antd";
+import { Button, Checkbox, Col, Form, Input, message, Row } from "antd";
 import { register } from "../../services/api";
 
 const formItemLayout = {
@@ -80,8 +80,6 @@ const RegistrationForm = () => {
         maxWidth: 600,
         marginTop: "30px",
         marginBottom: "30px",
-        marginLeft: "8%",
-        marginRight: "20%",
       }}
       scrollToFirstError
     >
@@ -102,7 +100,6 @@ const RegistrationForm = () => {
       >
         <Input />
       </Form.Item>
-
       <Form.Item
         name="password"
         label="Password"
@@ -116,7 +113,6 @@ const RegistrationForm = () => {
       >
         <Input.Password />
       </Form.Item>
-
       <Form.Item
         name="confirm"
         label="Confirm Password"
@@ -140,6 +136,20 @@ const RegistrationForm = () => {
         ]}
       >
         <Input.Password />
+      </Form.Item>
+      <Form.Item
+        name="full_name"
+        label="Full Name"
+        tooltip="Your full name."
+        rules={[
+          {
+            required: true,
+            message: "Please input your full name!",
+            whitespace: true,
+          },
+        ]}
+      >
+        <Input />
       </Form.Item>
 
       <Form.Item
@@ -166,11 +176,29 @@ const RegistrationForm = () => {
           </Col>
         </Row>
       </Form.Item>
+      <Form.Item
+        name="agreement"
+        valuePropName="checked"
+        rules={[
+          {
+            validator: (_, value) =>
+              value
+                ? Promise.resolve()
+                : Promise.reject(new Error("Should accept agreement")),
+          },
+        ]}
+        {...tailFormItemLayout}
+      >
+        <Checkbox>
+          I have read the <a href="/terms.txt">agreement</a>
+        </Checkbox>
+      </Form.Item>
 
       <Form.Item {...tailFormItemLayout}>
         <Button type="primary" htmlType="submit">
           Register
         </Button>
+        Or <a href="/login">Go back to login!</a>
       </Form.Item>
     </Form>
   );

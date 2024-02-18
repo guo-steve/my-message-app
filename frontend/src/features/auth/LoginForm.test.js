@@ -24,7 +24,7 @@ describe("LoginForm", () => {
       </BrowserRouter>
     );
 
-    const usernameElem = screen.getByPlaceholderText("Username");
+    const usernameElem = screen.getByPlaceholderText("Email");
     expect(usernameElem).toBeInTheDocument();
     const passwordElem = screen.getByPlaceholderText("Password");
     expect(passwordElem).toBeInTheDocument();
