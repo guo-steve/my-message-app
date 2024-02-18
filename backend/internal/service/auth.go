@@ -9,7 +9,7 @@ import (
 	"my-message-app/internal/domain"
 	"my-message-app/internal/repo"
 
-	"github.com/dgrijalva/jwt-go"
+	"github.com/golang-jwt/jwt/v5"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -68,8 +68,8 @@ func (a *authService) Login(ctx context.Context, creds domain.Credentials) (stri
 	expirationTime := time.Now().Add(oneHour)
 	claims := &domain.JWTClaims{
 		Email: creds.Email,
-		StandardClaims: jwt.StandardClaims{
-			ExpiresAt: expirationTime.Unix(),
+		RegisteredClaims: jwt.RegisteredClaims{
+			ExpiresAt: jwt.NewNumericDate(expirationTime),
 		},
 	}
 
