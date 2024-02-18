@@ -43,11 +43,12 @@ func (r *SqliteRepo) GetMessages(ctx context.Context, createdBy string) ([]domai
 	rows, err := r.db.QueryContext(
 		ctx,
 		`SELECT id, content, created_by, created_at
-		FROM messages WHEERE created_by = ?`,
+		FROM messages
+		WHERE created_by = ?`,
 		createdBy,
 	)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to get messages: %w", err)
 	}
 	defer rows.Close()
 
