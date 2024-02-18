@@ -13,6 +13,10 @@ type AuthService interface {
 	Logout(ctx context.Context, tokenString string) error
 }
 
+type UserService interface {
+	GetUserByID(ctx context.Context, id string) (*domain.User, error)
+}
+
 type MessageService interface {
 	CreateMessage(ctx context.Context, message domain.Message) (*domain.Message, error)
 	GetMessages(ctx context.Context) ([]domain.Message, error)
@@ -21,11 +25,13 @@ type MessageService interface {
 type Services struct {
 	MessageService MessageService
 	AuthService    AuthService
+	UserService    UserService
 }
 
-func NewServices(messageService MessageService, authService AuthService) *Services {
+func NewServices(messageService MessageService, authService AuthService, userService UserService) *Services {
 	return &Services{
 		MessageService: messageService,
 		AuthService:    authService,
+		UserService:    userService,
 	}
 }

@@ -33,6 +33,11 @@ type Message struct {
 	CreatedAt time.Time `json:"created_at"`
 }
 
+type RichMessage struct {
+	Message
+	CreatedBy User `json:"created_by"`
+}
+
 type InvalidToken struct {
 	Token     string    `json:"token"`
 	CreatedAt time.Time `json:"created_at"`

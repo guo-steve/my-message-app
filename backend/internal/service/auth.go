@@ -19,6 +19,10 @@ var (
 	ErrInvalidToken = fmt.Errorf("invalid token")
 )
 
+const (
+	oneHour = 60 * time.Minute
+)
+
 func init() {
 	if len(jwtKey) == 0 {
 		jwtKey = []byte("a4aWevITOb6NTVitH5xrfGJfpVBcmBcZ")
@@ -61,7 +65,7 @@ func (a *authService) Login(ctx context.Context, creds domain.Credentials) (stri
 		return "", fmt.Errorf("invalid password %w", errBc)
 	}
 
-	expirationTime := time.Now().Add(5 * time.Minute)
+	expirationTime := time.Now().Add(oneHour)
 	claims := &domain.JWTClaims{
 		Email: creds.Email,
 		StandardClaims: jwt.StandardClaims{

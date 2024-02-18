@@ -2,6 +2,8 @@ package main
 
 import (
 	"database/sql"
+	"fmt"
+	"log/slog"
 	"net/http"
 	"os"
 
@@ -19,10 +21,19 @@ func main() {
 		JSON:            true,
 		Concise:         true,
 		SourceFieldName: "caller",
+		ReplaceAttrsOverride: func(groups []string, a slog.Attr) slog.Attr {
+			if a.Key == "caller" {
+				source := a.Value.Any().(*slog.Source)
+				a.Value = slog.StringValue(fmt.Sprintf("%s:%d", source.File, source.Line))
+				return slog.Attr{Key: "caller", Value: a.Value}
+			}
+			return a
+		},
 	})
 
 	// Connect to the database
-	db, err := sql.Open("sqlite", ":memory:")
+	// db, err := sql.Open("sqlite", ":memory:")
+	db, err := sql.Open("sqlite", "./dev.db")
 	if err != nil {
 		logger.Error("failed to open database", err)
 		os.Exit(1)
@@ -38,13 +49,10 @@ func main() {
 	_, err = db.Exec(string(sqls))
 	if err != nil {
 		logger.Error("failed to create table", err)
-		os.Exit(1)
 	}
 
-	// tokenAuth := jwtauth.New("HS256", []byte(os.Getenv("MMA_JWT_KEY")), nil)
-
 	repo := sqlite.NewSqliteRepo(db)
-	services := service.NewServices(service.NewMessageService(repo), service.NewAuthService(repo, repo))
+	services := service.NewServices(service.NewMessageService(repo), service.NewAuthService(repo, repo), service.NewUserService(repo))
 	handler := api.NewHandler(services, logger)
 	r := api.InitRounter(handler)
 

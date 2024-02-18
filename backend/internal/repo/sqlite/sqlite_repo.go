@@ -129,3 +129,27 @@ func (r *SqliteRepo) FindInvalidToken(ctx context.Context, tokenString string) (
 	}
 	return &token, nil
 }
+
+// GetUserByID returns a user by id
+func (r *SqliteRepo) GetUserByID(ctx context.Context, id string) (*domain.User, error) {
+	row := r.db.QueryRowContext(
+		ctx,
+		`SELECT id, email, full_name, active, created_at, updated_at
+		FROM users WHERE id = ?`,
+		id,
+	)
+
+	var user domain.User
+	err := row.Scan(
+		&user.ID,
+		&user.Email,
+		&user.FullName,
+		&user.Active,
+		&user.CreatedAt,
+		&user.UpdatedAt,
+	)
+	if err != nil {
+		return nil, fmt.Errorf("failed to find user: %w", err)
+	}
+	return &user, nil
+}

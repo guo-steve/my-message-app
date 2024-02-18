@@ -21,6 +21,7 @@ func newServices(hasError bool) *service.Services {
 	return service.NewServices(
 		&mockMessageService{hasError: hasError},
 		&mockAuthService{hasError: hasError},
+		&mockUserService{hasError: hasError},
 	)
 }
 
@@ -55,7 +56,8 @@ func testReq(method, url string) *http.Request {
 func TestNewHandler(t *testing.T) {
 	services := service.NewServices(
 		&mockMessageService{},
-		nil,
+		&mockAuthService{},
+		&mockUserService{},
 	)
 
 	type args struct {
@@ -87,39 +89,30 @@ func TestNewHandler(t *testing.T) {
 }
 
 func TestHandler_PostMessage(t *testing.T) {
-	type fields struct {
-		services *service.Services
-	}
 	type args struct {
 		resWtr http.ResponseWriter
 		req    *http.Request
 	}
 	tests := []struct {
 		name    string
-		fields  fields
 		args    args
 		want    *domain.Message
 		wantErr bool
 	}{
 		{
 			name: "TestPostMessage",
-			fields: fields{
-				services: service.NewServices(&mockMessageService{}, nil),
-			},
 			args: args{
 				resWtr: httptest.NewRecorder(),
 				req:    testReq(http.MethodPost, "/v1/messages"),
 			},
 			want: &domain.Message{
-				ID:      "1",
-				Content: "Hello",
+				ID:        "1",
+				Content:   "Hello",
+				CreatedBy: "John Doe",
 			},
 		},
 		{
 			name: "TestPostMessageError",
-			fields: fields{
-				services: service.NewServices(&mockMessageService{hasError: true}, nil),
-			},
 			args: args{
 				resWtr: httptest.NewRecorder(),
 				req:    testReq(http.MethodPost, "/v1/messages"),
@@ -130,7 +123,7 @@ func TestHandler_PostMessage(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			// new Handler
-			h := newHandler(tt.fields.services)
+			h := newHandler(newServices(tt.wantErr))
 			h.PostMessage(tt.args.resWtr, tt.args.req)
 
 			res := tt.args.resWtr.(*httptest.ResponseRecorder).Result()
@@ -157,45 +150,37 @@ func TestHandler_PostMessage(t *testing.T) {
 }
 
 func TestHandler_GetMessages(t *testing.T) {
-	type fields struct {
-		services *service.Services
-	}
 	type args struct {
 		resWtr http.ResponseWriter
 		req    *http.Request
 	}
 	tests := []struct {
 		name    string
-		fields  fields
 		args    args
 		want    []domain.Message
 		wantErr bool
 	}{
 		{
 			name: "TestGetMessages",
-			fields: fields{
-				services: service.NewServices(&mockMessageService{}, nil),
-			},
 			args: args{
 				resWtr: httptest.NewRecorder(),
 				req:    testReq(http.MethodGet, "/v1/messages"),
 			},
 			want: []domain.Message{
 				{
-					ID:      "1",
-					Content: "Hello",
+					ID:        "1",
+					Content:   "Hello",
+					CreatedBy: "John Doe",
 				},
 				{
-					ID:      "2",
-					Content: "World",
+					ID:        "2",
+					Content:   "World",
+					CreatedBy: "John Doe",
 				},
 			},
 		},
 		{
 			name: "TestGetMessagesError",
-			fields: fields{
-				services: service.NewServices(&mockMessageService{hasError: true}, nil),
-			},
 			args: args{
 				resWtr: httptest.NewRecorder(),
 				req:    testReq(http.MethodGet, "/v1/messages"),
@@ -206,7 +191,7 @@ func TestHandler_GetMessages(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			h := newHandler(tt.fields.services)
+			h := newHandler(newServices(tt.wantErr))
 			h.GetMessages(tt.args.resWtr, tt.args.req)
 
 			res := tt.args.resWtr.(*httptest.ResponseRecorder).Result()
@@ -253,12 +238,29 @@ func (m *mockMessageService) GetMessages(ctx context.Context) ([]domain.Message,
 
 	return []domain.Message{
 		{
-			ID:      "1",
-			Content: "Hello",
+			ID:        "1",
+			Content:   "Hello",
+			CreatedBy: "John Doe",
 		},
 		{
-			ID:      "2",
-			Content: "World",
+			ID:        "2",
+			Content:   "World",
+			CreatedBy: "John Doe",
 		},
+	}, nil
+}
+
+type mockUserService struct {
+	hasError bool
+}
+
+func (m *mockUserService) GetUserByID(ctx context.Context, id string) (*domain.User, error) {
+	if m.hasError {
+		return nil, errors.New("error")
+	}
+	return &domain.User{
+		ID:       id,
+		FullName: "John Doe",
+		Email:    "test@t.c",
 	}, nil
 }

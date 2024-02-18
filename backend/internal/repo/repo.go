@@ -14,6 +14,7 @@ type MessageRepo interface {
 type UserRepo interface {
 	FindUserByEmail(ctx context.Context, email string) (*domain.User, error)
 	CreateUser(ctx context.Context, user domain.User) (*domain.User, error)
+	GetUserByID(ctx context.Context, id string) (*domain.User, error)
 }
 
 type InvalidTokenRepo interface {

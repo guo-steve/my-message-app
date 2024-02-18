@@ -1,21 +1,22 @@
 import React, { useEffect, useState } from "react";
 import { Button, Form, Input, message, Table } from "antd";
-import axios from "axios";
 import { useDispatch, useSelector } from "react-redux";
 import { addMessage, syncMessages } from "./messagesSlice";
 
-const baseUrl = process.env.REACT_APP_BACKEND_URL;
+import { getMessages, postMessage } from "../../services/api";
 
 const MessageApp = () => {
   const [messageApi, contextHolder] = message.useMessage();
   const messages = useSelector((state) => state.messages.value);
   const dispatch = useDispatch();
 
+  const token = localStorage.getItem("token");
+
   useEffect(() => {
-    axios
-      .get(`${baseUrl}/v1/messages`)
-      .then((response) => {
-        dispatch(syncMessages(response.data));
+    getMessages()
+      .then((data) => {
+        data = data.map((m) => (m = { ...m, key: m.id }));
+        dispatch(syncMessages(data));
       })
       .catch((error) => {
         console.error(error);
@@ -26,7 +27,7 @@ const MessageApp = () => {
           content: errMsg,
         });
       });
-  }, [dispatch, messageApi]);
+  }, [dispatch, messageApi, token]);
 
   const columns = [
     {
@@ -38,6 +39,11 @@ const MessageApp = () => {
       title: "Message",
       dataIndex: "content",
       key: "content",
+    },
+    {
+      title: "Posted By",
+      dataIndex: "created_by",
+      key: "created_by",
     },
     {
       title: "Created At",
@@ -55,11 +61,8 @@ const MessageApp = () => {
 
   const onFinish = async (values) => {
     try {
-      const response = await axios.post(`${baseUrl}/v1/messages`, {
-        content: values.message,
-      });
-
-      const newMessage = await response.data;
+      const newMessage = await postMessage(values.message);
+      newMessage.key = newMessage.id;
       dispatch(addMessage(newMessage));
     } catch (error) {
       console.error(error);

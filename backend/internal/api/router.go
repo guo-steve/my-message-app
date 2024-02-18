@@ -15,7 +15,8 @@ func InitRounter(handler *Handler) http.Handler {
 	router.Use(httplog.RequestLogger(handler.logger))
 	router.Use(middleware.Recoverer)
 	router.Use(cors.Handler(cors.Options{
-		AllowedOrigins: []string{"http://localhost:3000"},
+		AllowedHeaders: []string{"*"},
+		Debug:          true,
 	}))
 
 	// protected routes
