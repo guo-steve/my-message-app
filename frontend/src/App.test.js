@@ -1,8 +1,21 @@
-import { render, screen } from '@testing-library/react';
-import App from './App';
+import { render, screen } from "@testing-library/react";
+import MatchMediaMock from "jest-matchmedia-mock";
+import App from "./App";
 
-test('renders learn react link', () => {
-  render(<App />);
-  const linkElement = screen.getByText(/learn react/i);
-  expect(linkElement).toBeInTheDocument();
+describe("App", () => {
+  let matchMedia;
+
+  beforeAll(() => {
+    matchMedia = new MatchMediaMock();
+  });
+
+  afterAll(() => {
+    matchMedia.clear();
+  });
+
+  test("renders my-message-app", () => {
+    render(<App />);
+    const titleElem = screen.getByText("My Message App");
+    expect(titleElem).toBeInTheDocument();
+  });
 });
