@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Button, Checkbox, Col, Form, Input, message, Row } from "antd";
 import { register } from "../../services/api";
 
@@ -68,7 +68,13 @@ const RegistrationForm = () => {
   const onGetCaptcha = () => {
     const newCaptcha = Math.random().toString(36).slice(2, 8);
     setCaptcha(newCaptcha);
+    console.log(newCaptcha);
   };
+
+  useEffect(() => {
+    // it is supposed to be filled by the user
+    form.setFieldsValue({ captcha });
+  }, [form, captcha]);
 
   return (
     <Form
@@ -168,7 +174,7 @@ const RegistrationForm = () => {
                 },
               ]}
             >
-              <Input value={captcha} />
+              <Input />
             </Form.Item>
           </Col>
           <Col span={12}>
