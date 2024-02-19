@@ -1,9 +1,14 @@
 import React, { useEffect, useState } from "react";
-import { Button, Form, Input, message, Table } from "antd";
+import { Button, Form, Input, message, Popconfirm, Table } from "antd";
 import { useDispatch, useSelector } from "react-redux";
 import { addMessage, syncMessages } from "./messagesSlice";
-
-import { getMessages, postMessage } from "../../services/api";
+import {
+  deleteMessage,
+  getMessages,
+  postMessage,
+  updateMessage,
+} from "../../services/api";
+import { EditableCell, EditableRow } from "./EditableCell";
 
 const MessageApp = () => {
   const [messageApi, contextHolder] = message.useMessage();
@@ -29,27 +34,85 @@ const MessageApp = () => {
       });
   }, [dispatch, messageApi, token]);
 
+  const handleDelete = async (row) => {
+    try {
+      await deleteMessage(row.id);
+      const newData = messages.filter((item) => item.key !== row.key);
+      dispatch(syncMessages(newData));
+    } catch (error) {
+      console.error(error);
+      const errMsg =
+        error.response?.data.message || error.message || "An error occurred";
+      messageApi.open({
+        type: "error",
+        content: errMsg,
+      });
+    }
+  };
+
+  const handleSave = async (row) => {
+    try {
+      await updateMessage(row.id, row.content);
+
+      const newData = [...messages];
+      const index = newData.findIndex((item) => row.key === item.key);
+      const item = newData[index];
+      // this updates messages
+      newData.splice(index, 1, {
+        ...item,
+        ...row,
+      });
+      dispatch(syncMessages(newData));
+    } catch (error) {
+      console.error(error);
+      const errMsg =
+        error.response?.data.message || error.message || "An error occurred";
+
+      messageApi.open({
+        type: "error",
+        content: errMsg,
+      });
+    }
+  };
+
   const columns = [
     {
       title: "ID",
       dataIndex: "id",
-      key: "id",
     },
     {
       title: "Message",
       dataIndex: "content",
-      key: "content",
+      editable: true,
+      onCell: (record) => ({
+        record,
+        editable: true,
+        dataIndex: "content",
+        title: "Message",
+        handleSave,
+      }),
     },
     {
       title: "Posted By",
       dataIndex: "created_by",
-      key: "created_by",
     },
     {
       title: "Created At",
       dataIndex: "created_at",
-      key: "created_at",
       render: (text) => new Date(text).toLocaleString(),
+    },
+    {
+      title: "Action",
+      dataIndex: "action",
+      render: (_, record) =>
+        messages.length >= 1 ? (
+          <Popconfirm
+            title="Sure to delete?"
+            onConfirm={() => handleDelete(record)}
+          >
+            <Button>Delete</Button>
+          </Popconfirm>
+        ) : null,
     },
   ];
 
@@ -73,6 +136,13 @@ const MessageApp = () => {
         content: errMsg,
       });
     }
+  };
+
+  const components = {
+    body: {
+      row: EditableRow,
+      cell: EditableCell,
+    },
   };
 
   return (
@@ -112,7 +182,7 @@ const MessageApp = () => {
         </Form.Item>
       </Form>
 
-      <Table columns={columns} dataSource={messages} />
+      <Table components={components} columns={columns} dataSource={messages} />
     </div>
   );
 };

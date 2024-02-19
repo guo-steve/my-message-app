@@ -21,6 +21,50 @@ export const getMessages = async () => {
   }
 };
 
+export const updateMessage = async (id, message) => {
+  const token = localStorage.getItem("token");
+
+  try {
+    const response = await axios.patch(
+      `${baseUrl}/v1/messages/${id}`,
+      {
+        content: message,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    return response.data;
+  } catch (error) {
+    console.error(error);
+    if (error.response?.status === 401) {
+      localStorage.removeItem("token");
+    }
+    throw error;
+  }
+};
+
+export const deleteMessage = async (id) => {
+  const token = localStorage.getItem("token");
+
+  try {
+    const response = await axios.delete(`${baseUrl}/v1/messages/${id}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response.data;
+  } catch (error) {
+    console.error(error);
+    if (error.response?.status === 401) {
+      localStorage.removeItem("token");
+    }
+    throw error;
+  }
+};
+
 export const postMessage = async (message) => {
   const token = localStorage.getItem("token");
 

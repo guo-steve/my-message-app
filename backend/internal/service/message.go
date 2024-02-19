@@ -26,3 +26,11 @@ func (s *messageService) CreateMessage(ctx context.Context, message domain.Messa
 func (s *messageService) GetMessages(ctx context.Context, createdBy string) ([]domain.Message, error) {
 	return s.repo.GetMessages(ctx, createdBy)
 }
+
+func (s *messageService) UpdateMessage(ctx context.Context, message domain.Message) (*domain.Message, error) {
+	return s.repo.UpdateMessage(ctx, message)
+}
+
+func (s *messageService) DeleteMessage(ctx context.Context, messageID, userID string) error {
+	return s.repo.DeleteMessage(ctx, messageID, userID)
+}

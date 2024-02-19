@@ -250,6 +250,20 @@ func (m *mockMessageService) GetMessages(ctx context.Context, createdBy string) 
 	}, nil
 }
 
+func (m *mockMessageService) UpdateMessage(ctx context.Context, message domain.Message) (*domain.Message, error) {
+	if m.hasError {
+		return nil, errors.New("error")
+	}
+	return &message, nil
+}
+
+func (m *mockMessageService) DeleteMessage(ctx context.Context, id string, userID string) error {
+	if m.hasError {
+		return errors.New("error")
+	}
+	return nil
+}
+
 type mockUserService struct {
 	hasError bool
 }

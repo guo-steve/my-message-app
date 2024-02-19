@@ -20,6 +20,8 @@ type UserService interface {
 type MessageService interface {
 	CreateMessage(ctx context.Context, message domain.Message) (*domain.Message, error)
 	GetMessages(ctx context.Context, createdBy string) ([]domain.Message, error)
+	UpdateMessage(ctx context.Context, message domain.Message) (*domain.Message, error)
+	DeleteMessage(ctx context.Context, messageID, userID string) error
 }
 
 type Services struct {

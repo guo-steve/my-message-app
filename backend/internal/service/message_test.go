@@ -203,7 +203,7 @@ func (m *mockMessageRepo) UpdateMessage(ctx context.Context, message domain.Mess
 	return &message, nil
 }
 
-func (m *mockMessageRepo) DeleteMessage(ctx context.Context, id string) error {
+func (m *mockMessageRepo) DeleteMessage(ctx context.Context, mID, userID string) error {
 	if m.hasError {
 		return errors.New("error")
 	}

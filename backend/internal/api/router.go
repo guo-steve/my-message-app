@@ -16,6 +16,7 @@ func InitRounter(handler *Handler) http.Handler {
 	router.Use(middleware.Recoverer)
 	router.Use(cors.Handler(cors.Options{
 		AllowedHeaders: []string{"*"},
+		AllowedMethods: []string{"GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"},
 		Debug:          true,
 	}))
 
@@ -28,6 +29,8 @@ func InitRounter(handler *Handler) http.Handler {
 		r.Route("/v1/messages", func(r chi.Router) {
 			r.Post("/", handler.PostMessage) // POST /messages
 			r.Get("/", handler.GetMessages)  // GET /messages
+			r.Patch("/{id}", handler.UpdateMessage)
+			r.Delete("/{id}", handler.DeleteMessage)
 		})
 
 		r.Route("/v1/logout", func(r chi.Router) {

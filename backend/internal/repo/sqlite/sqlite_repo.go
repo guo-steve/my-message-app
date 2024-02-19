@@ -80,11 +80,12 @@ func (r *SqliteRepo) UpdateMessage(ctx context.Context, message domain.Message) 
 }
 
 // DeleteMessage removes a message from the database
-func (r *SqliteRepo) DeleteMessage(ctx context.Context, id string) error {
+func (r *SqliteRepo) DeleteMessage(ctx context.Context, messageID, userID string) error {
 	_, err := r.db.ExecContext(
 		ctx,
-		"DELETE FROM messages WHERE id = ?",
-		id,
+		"DELETE FROM messages WHERE id = ? AND created_by = ?",
+		messageID,
+		userID,
 	)
 	if err != nil {
 		return fmt.Errorf("failed to delete message: %w", err)
