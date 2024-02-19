@@ -64,6 +64,34 @@ func (r *SqliteRepo) GetMessages(ctx context.Context, createdBy string) ([]domai
 	return messages, nil
 }
 
+// UpdateMessage updates a message in the database
+func (r *SqliteRepo) UpdateMessage(ctx context.Context, message domain.Message) (*domain.Message, error) {
+	row := r.db.QueryRowContext(
+		ctx,
+		`UPDATE messages SET content = ? WHERE id = ? RETURNING *`,
+		message.Content,
+		message.ID,
+	)
+	err := row.Scan(&message.ID, &message.Content, &message.CreatedBy, &message.CreatedAt)
+	if err != nil {
+		return nil, fmt.Errorf("failed to update message: %w", err)
+	}
+	return &message, err
+}
+
+// DeleteMessage removes a message from the database
+func (r *SqliteRepo) DeleteMessage(ctx context.Context, id string) error {
+	_, err := r.db.ExecContext(
+		ctx,
+		"DELETE FROM messages WHERE id = ?",
+		id,
+	)
+	if err != nil {
+		return fmt.Errorf("failed to delete message: %w", err)
+	}
+	return err
+}
+
 // FindUserByEmail returns a user by email
 func (r *SqliteRepo) FindUserByEmail(ctx context.Context, email string) (*domain.User, error) {
 	row := r.db.QueryRowContext(ctx,

@@ -195,3 +195,17 @@ func (m *mockMessageRepo) GetMessages(ctx context.Context, createdBy string) ([]
 		},
 	}, nil
 }
+
+func (m *mockMessageRepo) UpdateMessage(ctx context.Context, message domain.Message) (*domain.Message, error) {
+	if m.hasError {
+		return nil, errors.New("error")
+	}
+	return &message, nil
+}
+
+func (m *mockMessageRepo) DeleteMessage(ctx context.Context, id string) error {
+	if m.hasError {
+		return errors.New("error")
+	}
+	return nil
+}
