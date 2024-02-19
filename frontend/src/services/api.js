@@ -109,3 +109,19 @@ export const login = async (values) => {
     throw error;
   }
 };
+
+export const logout = async () => {
+  const token = localStorage.getItem("token");
+
+  try {
+    const response = await axios.post(`${baseUrl}/v1/logout`, null, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response.data;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+};

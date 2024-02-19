@@ -9,6 +9,7 @@ import "./App.css";
 import ProtectedRoute from "./features/ProtectedRoute";
 import MainLayout from "./features/layout/Layout";
 import RegistrationForm from "./features/auth/RegistrationForm";
+import Logout from "./features/auth/Logout";
 
 function App() {
   return (
@@ -23,6 +24,7 @@ function App() {
           </Route>
           <Route element={<ProtectedRoute />}>
             <Route path="/message" element={<MessageApp />} />
+            <Route path="/logout" element={<Logout />} />
           </Route>
         </Routes>
       </BrowserRouter>
