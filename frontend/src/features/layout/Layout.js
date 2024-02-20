@@ -9,7 +9,20 @@ const MainLayout = () => {
 
   useEffect(() => {
     setLoggedIn(!!localStorage.getItem("token"));
-  }, [loggedIn]);
+    const handleStorageChange = () => {
+      const token = localStorage.getItem("token");
+      setLoggedIn(!!token);
+      if (!token) {
+        console.log("No token found");
+      }
+    };
+
+    window.addEventListener("storage", handleStorageChange);
+
+    return () => {
+      window.removeEventListener("storage", handleStorageChange);
+    };
+  }, []);
 
   return (
     <Layout className="layout">

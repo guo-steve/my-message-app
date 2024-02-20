@@ -17,6 +17,7 @@ const LoginForm = () => {
       });
 
       localStorage.setItem("token", token);
+      window.dispatchEvent(new Event("storage"));
 
       navigate("/message");
     } catch (error) {
